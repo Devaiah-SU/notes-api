@@ -1,0 +1,20 @@
+# GraphQL schema definition for the Category type
+type Category {
+  _id: ID # Unique identifier for the category
+  name: String! 
+  color: String!
+  createdAt: String!
+}
+# Query to get all categories
+type Query {
+    categories: [Category!]! # Returns a list of all categories
+  }
+# Input type for creating a new category
+input CreateCategoryInput {
+  name: String!
+  color: String
+}
+# Mutation to create a new category
+type Mutation {
+  createCategory(input: CreateCategoryInput!): Category! # Creates a new category and returns it.
+}
