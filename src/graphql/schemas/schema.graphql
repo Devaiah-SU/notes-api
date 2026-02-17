@@ -1,20 +1,61 @@
 # GraphQL schema definition for the Category type
-type Category {
+scalar Date
+type Category 
+{
   _id: ID # Unique identifier for the category
   name: String! 
   color: String!
-  createdAt: String!
+  createdAt: Date!
 }
-# Query to get all categories
-type Query {
+# Queries for categories and notes.
+type Query 
+{
     categories: [Category!]! # Returns a list of all categories
+    notes(categoryId: ID): [Note!]! #returns a list of all notes
+    note(_id: ID!): Note #returns a single note based on ID of that note
   }
 # Input type for creating a new category
-input CreateCategoryInput {
+input CreateCategoryInput 
+{
   name: String!
   color: String
 }
-# Mutation to create a new category
-type Mutation {
+# Mutation for notes and category
+type Mutation 
+{
   createCategory(input: CreateCategoryInput!): Category! # Creates a new category and returns it.
+  createNote(input:createNoteInput!):Note! #creates a new note and returns it
+  updateNote(_id: ID!, input: updateNoteInput!): Note! #updates a note based on ID
+  deleteNote(_id:ID!):deleteNoteOutput! #deletes a note based on ID
+}
+type Note 
+{
+  _id: ID!
+  title: String!
+  content: String!
+  category: Category
+  isPinned: Boolean!
+  createdAt: Date!
+  updatedAt: Date!
+}
+# input for creating a new note
+input createNoteInput
+{
+  title: String!
+  content: String!
+  category: ID
+}
+# input for updating a note
+input updateNoteInput 
+{
+  title: String
+  content: String
+  category: ID
+  isPinned: Boolean
+}
+#output message for note deletion
+type deleteNoteOutput
+{
+  success: Boolean!
+  message:String!
 }
