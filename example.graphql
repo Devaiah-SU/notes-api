@@ -1,0 +1,271 @@
+# Use these examples to check if your API works.
+
+#------------------#
+# For categories #
+#------------------#
+# creating a category 
+mutation {
+  createCategory(
+    input: {
+      name: "My first Category", color:"#FF0000"
+    }
+  ) {
+  	_id,name,color,createdAt
+  }
+}
+#checking validation for name 
+mutation {
+  createCategory(
+    input: {
+      name: ""
+    }
+  ) {
+  	_id,name,color,createdAt
+  }
+}
+#Checking validation for valid Hex color
+mutation {
+  createCategory(
+    input: {
+      name: "My First Task", color:"@ff08"
+    }
+  ) {
+  	_id,name,color,createdAt
+  }
+}
+#Fetching all categories ( You may specify one or all of the following : _id,name,color)
+query {
+  categories{
+    _id,
+    name,
+    color
+  }
+}
+#
+
+#--------------#
+# For Notes #
+#--------------#
+#creating a Note
+# Create note 
+mutation {
+  createNote(input: {
+    title: "My First Note in first category"
+    content: "This is the content"
+    categoryID: "69955e8584fdd736c8dc4f4f" #_id of "My first Category"
+  }) {
+    _id
+    title
+    content
+    createdAt
+    category{
+      _id
+      name
+      color
+      createdAt
+    }
+  }
+}
+#checking validation for create note
+#1. Missing title field
+mutation {
+  createNote(
+    input: {
+      content: "This is valid content"
+      categoryID: "69955e8584fdd736c8dc4f4f"
+    }
+  ) {
+    _id
+  }
+}
+#2. Missing title field content
+mutation {
+  createNote(
+    input: {
+      title:""
+      content: "This is valid content"
+      categoryID: "69955e8584fdd736c8dc4f4f"
+    }
+  ) {
+    _id
+  }
+}
+#3. Title greater than 100 Characters
+mutation {
+  createNote(
+    input: {
+      title:"This title is intentionally made extremely long to exceed the maximum allowed limit of one hundred characters in order to trigger validation error "
+      content: "This is valid content"
+      categoryID: "69955e8584fdd736c8dc4f4f"
+    }
+  ) {
+    _id
+  }
+}
+#4. Missing content field
+mutation {
+  createNote(
+    input: {
+      title:"This title is intentionally made  "
+      categoryID: "69955e8584fdd736c8dc4f4f"
+    }
+  ) {
+    _id
+  }
+}
+#5. Missing content
+mutation {
+  createNote(
+    input: {
+      title: "Valid Title"
+      content: ""
+    }
+  ) {
+    _id
+  }
+}
+#6. Invalid categoryID
+mutation {
+  createNote(
+    input: {
+      title: "Valid Title"
+      content: "Valid Content"
+      categoryID: "abc"
+    }
+  ) {
+    _id
+  }
+}
+# Query to get all notes 
+# Get all notes
+query {
+  notes {
+    _id
+    title
+    content
+    isPinned
+    category {
+      name
+      color
+    }
+  }
+}
+# Get notes by category
+query {
+  notes(categoryId: "69955e8584fdd736c8dc4f4f") { #_id of "My first category"
+    _id
+    title
+  }
+}
+# Validation test for get notes by category 
+query {
+  notes(categoryId:"abcd1234") {
+    _id
+    title
+  }
+}
+# get single note
+query {
+  note(_id: "699566ec537957e283ffb4b2") { #Important to note that this _id is the _id for note
+    _id
+    title
+    content
+  }
+}
+# validation test for get single note
+query {
+  note(_id: "abcd1234") {
+    _id
+    title
+    content
+  }
+} 
+# Update note
+mutation {
+  updateNote(_id: "699566ec537957e283ffb4b2", input: {title:"My first Note in first category updated",isPinned: true,content:"updated content" }) {
+    _id
+    title
+    content
+    isPinned
+  }
+}
+#1. Validation test for title not greater than 100 char 
+mutation {
+  updateNote(_id: "699566ec537957e283ffb4b2", input: {title:"This title is intentionally made extremely long to exceed the maximum allowed limit of one hundred characters in order to trigger validation error",isPinned: true,content:"updated content" }) {
+    _id
+    title
+    content
+    isPinned
+  }
+}
+#2. Validation test for Invalid Note Id
+mutation {
+  updateNote(_id: "abcd1234", input: {title:"Valid title",isPinned: true,content:"updated content" }) {
+    _id
+    title
+    content
+    isPinned
+  }
+}
+#3. Validation test for Invalid CategoryID
+mutation {
+  updateNote(_id: "699566ec537957e283ffb4b2", input: {title:"kdhgkdjg",isPinned: true,content:"updated content",categoryID:"abcd1234" }) {
+    _id
+    title
+    content
+    isPinned
+  }
+}
+#delete note
+mutation {
+  deleteNote(_id: "69956662a1a933b8caa8ee99") {
+    success
+    message
+  }
+}
+#1. Validation test for invalid Note ID
+mutation {
+  deleteNote(_id: "abcd1234") {
+    success
+    message
+  }
+}
+#2. Validation test for empty Note ID
+mutation {
+  deleteNote(_id: "") {
+    success
+    message
+  }
+}
+#3. Validation test for Note id not existing
+mutation {
+  deleteNote(_id: "any deleted note id") {
+    success
+    message
+  }
+}
+#query to get all notes under a specific category
+query {
+  notesCategory(categoryId: "69955e8584fdd736c8dc4f4f") {
+    _id
+    title
+  }
+}
+#validation test for empty categoryID
+query {
+  notesCategory(categoryId: "") {
+    _id
+    title
+  }
+}
+#query to check if notes is pinned 
+query {
+  pinnednotes {
+    _id
+    title
+    isPinned
+  }
+}
+
+
+

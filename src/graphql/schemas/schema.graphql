@@ -13,7 +13,9 @@ type Query
     categories: [Category!]! # Returns a list of all categories
     notes(categoryId: ID): [Note!]! #returns a list of all notes
     note(_id: ID!): Note #returns a single note based on ID of that note
-  }
+    notesCategory(categoryId: ID!): [Note!]! #returns all notes under a category
+    pinnednotes:[Note!]! #returns any pinned note.
+}
 # Input type for creating a new category
 input CreateCategoryInput 
 {
@@ -43,14 +45,14 @@ input createNoteInput
 {
   title: String!
   content: String!
-  category: ID
+  categoryID: ID
 }
 # input for updating a note
 input updateNoteInput 
 {
   title: String
   content: String
-  category: ID
+  categoryID: ID
   isPinned: Boolean
 }
 #output message for note deletion
