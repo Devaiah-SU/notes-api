@@ -10,6 +10,10 @@ const categoryResolvers = { // Define the resolvers for GraphQL queries and muta
   categories: async () => { // Resolver for fetching all categories
     return await Category.find(); // Fetch and return all categories from the database
   },
+  pagCategories: async ({page=1,limit=5}:{page?:number,limit?:number}) => { // Resolver for fetching limited number of categories in a page.
+    const skip=(page-1)*limit;
+    return await Category.find().skip(skip).limit(limit);
+  },
   createCategory: async ({ input }:CreateCategoryArgs) => { // Resolver for creating a new category, takes an input object as an argument
     // Validate input using Joi before saving
     const { error } = createCategorySchema.validate(input);

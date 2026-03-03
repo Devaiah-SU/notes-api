@@ -22,7 +22,7 @@ app.use('/graphql', graphqlHTTP({ // Set up the /graphql endpoint to handle Grap
   rootValue: {
   ...categoryResolvers,
   ...noteResolvers,
-},// Use the category resolvers and note resolvers to handle queries and mutations
+},// Use the category resolvers and note resolvers to handle queries and mutations for category and notes
   graphiql: true,
 }) );
 connectDB(); // Call the connectDB function to connect to MongoDB

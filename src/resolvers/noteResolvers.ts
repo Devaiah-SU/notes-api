@@ -1,6 +1,13 @@
 import Note from "../models/Note.js"; // Import the Note model to interact with the notes collection in MongoDB
 import mongoose from "mongoose";
-import { FetchSingleNote,createNoteSchema, updateNoteSchema, deleteNoteSchema, FetchNotesByCategory } from "../utils/validation.js"; // Import Joi validation schemas
+import {
+  FetchSingleNote,
+  createNoteSchema,
+  updateNoteSchema,
+  deleteNoteSchema,
+  FetchNotesByCategory,
+} from "../utils/validation.js"; // Import Joi validation schemas
+import { number } from "joi";
 // Interface for creating a note
 interface CreateNoteArgs {
   input: {
@@ -31,48 +38,70 @@ const noteResolvers = {
   // Resolver for fetching all notes
   notes: async ({ categoryId }: { categoryId?: string }) => {
     if (categoryId) {
-    const { error } = FetchNotesByCategory.validate({ _id: categoryId });
-    if (error) {
-      throw new Error(error.details[0].message);
+      const { error } = FetchNotesByCategory.validate({ _id: categoryId });
+      if (error) {
+        throw new Error(error.details[0].message);
+      }
+      return await Note.find({ category: categoryId })
+        .populate("category")
+        .sort({ createdAt: -1 });
     }
-    return await Note.find({ category: categoryId })
+    return await Note.find().populate("category").sort({ createdAt: -1 });
+  },
+  pagNotes: async ({
+    categoryId,
+    page = 1,
+    limit = 5,
+  }: {
+    categoryId?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const skip = (page - 1) * limit;
+    if (categoryId) {
+      const { error } = FetchNotesByCategory.validate({ _id: categoryId });
+      if (error) {
+        throw new Error(error.details[0].message);
+      }
+      return await Note.find({ category: categoryId })
+        .populate("category")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+    }
+    return await Note.find()
       .populate("category")
+      .skip(skip)
+      .limit(limit)
       .sort({ createdAt: -1 });
-  }
-  return await Note.find()
-    .populate("category")
-    .sort({ createdAt: -1 });
   },
   //Resolver for fetching all notes under a specific category
   notesCategory: async ({ categoryId }: { categoryId: string }) => {
-  const { error } = FetchNotesByCategory.validate({ _id: categoryId });
+    const { error } = FetchNotesByCategory.validate({ _id: categoryId });
 
-  if (error) {
-    throw new Error(error.details[0].message);
-  }
+    if (error) {
+      throw new Error(error.details[0].message);
+    }
 
-  return await Note.find({
-    category: new mongoose.Types.ObjectId(categoryId)
-  })
-    .populate("category")
-    .sort({ createdAt: -1 });
-},
+    return await Note.find({
+      category: new mongoose.Types.ObjectId(categoryId),
+    })
+      .populate("category")
+      .sort({ createdAt: -1 });
+  },
 
   // Resolver for fetching a single note by ID
   note: async ({ _id }: { _id: string }) => {
-    const{error}=FetchSingleNote.validate({_id});
-    if (error)
-    {
+    const { error } = FetchSingleNote.validate({ _id });
+    if (error) {
       throw new Error(error.details[0].message);
     }
-    return await Note.findById(_id)
-      .populate("category"); // Populate category details
+    return await Note.findById(_id).populate("category"); // Populate category details
   },
-  //resolver for fetching pinned notes 
+  //resolver for fetching pinned notes
   pinnednotes: async () => {
-  return await Note.find({ isPinned: true })
-    .populate("category");
-},
+    return await Note.find({ isPinned: true }).populate("category");
+  },
   // Resolver for creating a new note
   createNote: async ({ input }: CreateNoteArgs) => {
     // Validate input using Joi before saving to database
@@ -88,17 +117,15 @@ const noteResolvers = {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    return await newNote.save().then(note =>
-    note.populate("category")
-);; // Save and return the created note
+    return await newNote.save().then((note) => note.populate("category")); // Save and return the created note
   },
   // Resolver for updating a note by ID
   updateNote: async ({ _id, input }: UpdateNoteArgs) => {
     //validating note id
-     const idValidation = FetchSingleNote.validate({ _id });
+    const idValidation = FetchSingleNote.validate({ _id });
     if (idValidation.error) {
       throw new Error(idValidation.error.details[0].message);
-  }
+    }
     // Validate update input using Joi
     const { error } = updateNoteSchema.validate(input);
     if (error) {
@@ -111,7 +138,7 @@ const noteResolvers = {
         ...input,
         updatedAt: new Date(),
       },
-      { new: true } // Return updated document
+      { new: true }, // Return updated document
     ).populate("category");
   },
   // Resolver for deleting a note by ID
@@ -132,6 +159,6 @@ const noteResolvers = {
       success: true,
       message: "Note deleted successfully",
     };
-  }
+  },
 };
 export default noteResolvers; // Export noteResolvers to be used in app.ts

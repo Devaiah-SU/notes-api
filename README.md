@@ -72,7 +72,7 @@ STEPS FOR SETTING UP PROJECT:
 9. Use .env to setup MONGO_URI for connecting to MongoDB
 10. Setup MongoDB connection in db.ts,create schema and mongoose models.
 11. Create resolvers and perform validation testing
-12. Run npx tsx src/app.ts
+12. Run npx tsx watch src/app.ts (any changes made in real time will be directly reflected, you do not have to run this command repatedly. )
 13. Follow the link http://localhost:4000/graphql to directly eneter graphql interface for testing.
 14. test API using exmaple.graphql
 OR

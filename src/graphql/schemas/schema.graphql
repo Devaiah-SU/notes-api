@@ -15,6 +15,8 @@ type Query
     note(_id: ID!): Note #returns a single note based on ID of that note
     notesCategory(categoryId: ID!): [Note!]! #returns all notes under a category
     pinnednotes:[Note!]! #returns any pinned note.
+    pagCategories(page:Int,limit:Int):[Category!]! #returns a limited amount of categories per page
+    pagNotes(categoryId: ID,page:Int,limit:Int): [Note!]!#returns a limited amount of categories per page
 }
 # Input type for creating a new category
 input CreateCategoryInput 
